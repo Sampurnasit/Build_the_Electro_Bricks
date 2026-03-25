@@ -1,0 +1,13 @@
+{
+  "name": "build-the-electro-bricks",
+  "version": "1.0.0",
+  "description": "Electro Bricks application",
+  "main": "app.js",
+  "scripts": {
+    "start": "npx serve .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Sampurna Sit",
+  "license": "ISC"
+}

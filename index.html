@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Build The Electro Bricks</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
+    rel="stylesheet" />
+</head>
+
+<body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!--  BACKGROUND LAYERS                              -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="grid-bg"></div>
+  <div class="scanlines"></div>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!--  LOADING SCREEN                                 -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div id="screen-loading" class="screen active">
+    <div class="loading-inner">
+      <div class="loading-logo">BUILD THE ELECTRO BRICKS</div>
+      <div class="loading-bar-wrap">
+        <div class="loading-bar" id="loading-bar"></div>
+      </div>
+      <div class="loading-status" id="loading-status">Initializing system...</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!--  LOGIN SCREEN                                   -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div id="screen-login" class="screen">
+    <!-- Admin Access Button -->
+    <a href="admin.html" id="btn-admin-access" title="Admin Panel">
+      <span>⚙</span>
+    </a>
+    <div class="login-wrap">
+
+      <!-- Logo -->
+      <div class="login-logo-block">
+        <div class="logo-text">BUILD THE ELECTRO BRICKS</div>
+        <div class="logo-tagline">Technical Contest Platform &middot; 2026 </div>
+      </div>
+
+      <!-- Card -->
+      <div class="card fade-up">
+        <div class="card-header">
+          <div class="card-header-title">Contestant Access</div>
+          <div class="card-header-sub">Enter your credentials to begin</div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="inp-name">Team Name</label>
+          <input class="input" id="inp-name" type="text" placeholder="ENTER YOUR TEAM NAME" autocomplete="off" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="inp-code">Access Code</label>
+          <input class="input input-mono" id="inp-code" type="text" placeholder="ENTER YOUR ACCESS CODE"
+            autocomplete="off" />
+        </div>
+
+        <div id="login-error" class="error-msg hidden">⚠ Error message here</div>
+
+        <div class="divider"><span class="divider-text">ready</span></div>
+
+        <button class="btn" id="btn-login">
+          <span class="btn-icon">⚡</span>
+          <span class="btn-text">Login</span>
+        </button>
+
+        <p class="login-note">
+          Access codes are distributed offline by the organizers.<br />
+          Each code is single-use only.
+        </p>
+      </div>
+
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!--  RULES SCREEN                                   -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div id="screen-rules" class="screen">
+    <div class="rules-wrap fade-up">
+      <div class="rules-header">
+        <h2 class="rules-title">ROUND 1 – Circuit Debugging Arena</h2>
+      </div>
+      <div class="rules-content">
+        <h3>📝 Task:</h3>
+        <p>Participants will be provided with faulty electronic circuits, including:</p>
+        <ul>
+          <li>Digital circuits (logic gates, adder, subtracter)</li>
+          <li>Analog circuits (half wave / full wave, Center tapped rectifier)</li>
+        </ul>
+        <p>Each circuit will contain intentional errors in:</p>
+        <ul>
+          <li>Connections</li>
+          <li>Component placement</li>
+          <li>Logic implementation</li>
+        </ul>
+
+        <h3>🎯 Objective:</h3>
+        <ul>
+          <li>Identify and correct the errors</li>
+          <li>Make the circuit function correctly</li>
+        </ul>
+
+        <h3>⏱️ Time Limit:</h3>
+        <p>30 minutes</p>
+
+        <h3>🧮 Marks Distribution:</h3>
+        <ul>
+          <li>Digital Circuit: 25 marks</li>
+          <li>Analog Circuit: 25 marks</li>
+          <li><strong>Total: 50 marks</strong></li>
+        </ul>
+
+
+      </div>
+
+      <div class="rules-footer">
+        <button class="btn" id="btn-enter-contest">
+          <span class="btn-icon">⚡</span>
+          <span class="btn-text">Enter Contest</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!--  DASHBOARD SCREEN                               -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div id="screen-dashboard" class="screen">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-logo">⚡ BUILD THE ELECTRO BRICKS</div>
+      <div class="topbar-right">
+        <a href="admin.html" class="topbar-admin-btn" title="Admin Panel" target="_blank">⚙</a>
+        <div class="user-chip">
+          <div class="user-dot"></div>
+          <span id="chip-name">User</span>
+        </div>
+        <div class="timer-box" id="timer-box">
+          <span class="timer-icon">⏱</span>
+          <span id="timer-display">30:00</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="content" id="dashboard-content">
+
+      <!-- Section Header -->
+      <div class="section-header">
+        <span class="section-label">Your Active Question</span>
+        <div class="section-line"></div>
+      </div>
+
+      <!-- Question Container -->
+      <div class="q-container" id="q-container">
+
+        <!-- Digital Card (Shown First) -->
+        <div class="q-card digital fade-up" id="card-digital">
+          <div class="q-header">
+            <span class="q-num">Q1</span>
+            <span class="q-badge digital">🔢 Digital</span>
+            <span class="q-icon">▦</span>
+          </div>
+          <div class="q-text" id="q-digital-text">Loading question...</div>
+          <div class="q-footer">
+            <div class="dot-pulse"></div>
+            <span id="q-digital-id">Debug in CircuitMaker</span>
+          </div>
+          <div class="action-row" style="margin-top: 2rem; display: flex; justify-content: center;">
+            <button class="btn btn-secondary" id="btn-next-analog"
+              style="background: rgba(255,255,255,0.1); border: 1px solid var(--digital-color);">
+              <span class="btn-text">Next: Analog Question ➔</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Analog Card (Hidden Initially) -->
+        <div class="q-card analog fade-up hidden" id="card-analog" style="display: none;">
+          <div class="q-header">
+            <span class="q-num">Q2</span>
+            <span class="q-badge analog">⚡ Analog</span>
+            <span class="q-icon">〜</span>
+          </div>
+          <div class="q-text" id="q-analog-text">Loading question...</div>
+          <div class="q-footer">
+            <div class="dot-pulse"></div>
+            <span id="q-analog-id">Debug in CircuitMaker</span>
+          </div>
+        </div>
+
+      </div>
+
+      <p class="footer-note">Questions are randomly assigned &middot; Each contestant receives a unique pair</p>
+
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!--  TIME'S UP OVERLAY                              -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div id="timesup-overlay" class="timesup-overlay hidden">
+    <div class="timesup-inner">
+      <div class="timesup-title">TIME'S UP</div>
+      <div class="timesup-sub">Please stop writing and submit your answer sheets.</div>
+      <div class="timesup-brand">BUILD THE ELECTRO BRICKS &middot; CONTEST ENDED</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="questions.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>

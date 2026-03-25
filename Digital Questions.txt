@@ -1,0 +1,143 @@
+1. The Security Vault System
+
+A high-security research lab has installed a digital vault that opens only when the correct logical conditions are satisfied.
+The vault uses four sensors:
+
+A – Biometric authentication
+B – Access card verification
+C – PIN code verification
+D – Motion detector clearance
+The vault unlocks when the following conditions are satisfied:
+If biometric authentication and access card verification are both correct, the vault opens only if the motion detector shows no threat.
+If PIN verification is correct but biometric fails, the vault can still open only when the access card is correct.
+If both biometric and PIN are correct, the vault opens regardless of the motion detector.
+If motion detector detects threat, the vault must remain locked unless both biometric and PIN are correct.
+Tasks:
+1.Form the Boolean expression for the vault unlocking system.
+2.Implement the simplified circuit using only NAND gates.
+
+
+2. The City Development Approval System
+In a large metropolitan region, the city council plans infrastructure projects such as bridges, parks, and transport systems. However, the council does not directly decide whether a project should proceed. Instead, a computerized decision system collects signals from three influential advisory groups before giving the final approval.
+
+•	The first signal A comes from the Traditional Planning Council, a group that represents long-established administrative members of the city.
+
+•	The second signal B comes from the Reform Committee, a newer group that often proposes alternative approaches to development.
+
+•	The third signal C comes from the Citizens’ Review Board, which represents public opinion collected through surveys and civic meetings.
+The computerized system follows a special rule. A project will be approved if both advisory groups A and B agree on it, since agreement between these two groups indicates strong stability in the decision.
+However, if the two advisory groups disagree, the system still allows the project to move forward if the Citizens’ Review Board supports the project and at least one of the advisory groups also supports it.
+If none of these conditions are satisfied, the project is rejected by the system.
+
+Tasks:
+A) Identify the Boolean expression representing the approval output F.
+B) Determine the minimum number of gates required.
+
+3. The Event Permission Monitoring Network
+
+A city uses an automated monitoring network to manage large public gatherings. Because the city often experiences simultaneous activities from different social organizations, the administration built a digital system that decides whether an event permit should be granted.
+Three sensors provide signals to the system:
+•	X indicates that Organization X has announced a large gathering.
+•	Y indicates that Organization Y has announced a large gathering.
+•	Z indicates that the city security department has issued a safety alert.
+The city administration has observed that if both organizations plan gatherings at the same time, managing the crowd becomes extremely difficult. Therefore, the permit system is designed to allow an event only when exactly one organization plans a gathering.
+However, even if only one organization plans an event, the system will not allow the permit if the security department has issued a safety alert.
+Only when one and only one organization is planning a gathering and there is no security alert will the system automatically issue the permit.
+Tasks:
+A) Write the Boolean expression for the permit output P.
+B) Design the corresponding logic gate circuit.
+
+4. The Debate Broadcast Controller
+A major broadcasting network organizes live debates between representatives of two influential civic groups. These debates are extremely popular among viewers and help citizens understand different viewpoints on public issues.
+The broadcasting studio operates using an automated system that decides whether the live transmission should begin. 
+Three digital signals are used as inputs to the system.
+•	Signal A becomes 1 when the representative of Group A arrives at the studio.
+•	Signal B becomes 1 when the representative of Group B arrives.
+•	Signal M becomes 1 when the moderator responsible for managing the debate is present in the studio.
+The broadcasting policy states that a debate can only be aired if the moderator is present, because discussions cannot proceed without supervision.
+Additionally, at least one representative from either group must be present for the debate to make sense.
+If the moderator is absent, the broadcast must never start regardless of the representatives’ presence. If the moderator is present and at least one representative arrives, the system will begin the live broadcast.
+Tasks:
+A) Derive the Boolean expression for the broadcast signal F.
+B) Draw the logic gate circuit for the system.
+5. The Regional Opinion Analyzer
+A research institute conducts surveys across three major zones of a large region: the northern zone, the central zone, and the southern zone. Each zone sends a digital signal indicating whether the majority of respondents in that area support a new policy proposal.
+The signals are defined as follows:
+•	P = 1 if the northern zone supports the proposal
+•	Q = 1 if the central zone supports the proposal
+•	R = 1 if the southern zone supports the proposal
+To maintain fairness, the institute decided that a proposal should be considered popular only if at least two regions support it. If support comes from fewer than two regions, the proposal will be classified as lacking sufficient public backing.
+A digital circuit is used to automatically evaluate the three signals and generate the final output indicating whether the proposal is widely supported.
+Tasks:
+A) Develop the Boolean expression for the output F.
+B) Construct the logic gate circuit using AND and OR gates.
+C) Draw the truth table for the system.
+
+6.  The Surprise Gift Plan
+Rahul wants to surprise his girlfriend Neha with a special gift. However, the surprise should only happen under specific circumstances so that it remains meaningful.
+The system monitoring the plan has three inputs:
+R = Rahul has bought the gift
+N = Neha is at home
+F = Neha’s best friend is present to help organize the surprise
+The surprise celebration will occur if Rahul has the gift and Neha is home.
+However, if Neha is not at home yet, the surprise can still proceed if Rahul has the gift and her friend is present to help set up everything before Neha arrives.
+If Rahul hasn’t bought the gift, the plan obviously cannot happen.
+
+Tasks:	
+A) Determine the Boolean expression for output S (surprise happens).
+B) Draw the corresponding logic circuit.
+
+7. The Study Date
+Two college students, Aman and Riya, often meet in the library for study sessions. However, they only meet when certain conditions make the meeting productive.
+Three conditions are monitored:
+•	A = Aman has completed his assignments
+•	R = Riya has completed her assignments
+•	L = The library is open
+Their rule is simple:
+The study session happens only if the library is open and at least one of them has completed their assignments so that they can help the other person.
+If the library is closed, the meeting is automatically cancelled.
+Tasks:
+A) Write the Boolean expression for output F (study date occurs).
+B) Design the logic circuit.
+
+8.  The Apology Detector
+After a small argument, Kunal and Tara decide to reconcile only when genuine effort is shown. Their friends jokingly design a “reconciliation detector” circuit to determine when things are likely to be resolved.
+Three signals are used:
+•	K = Kunal apologizes
+•	T = Tara apologizes
+•	C = A close friend encourages them to talk
+
+The reconciliation signal becomes 1 only when exactly two of these signals are active. This means that reconciliation is most likely when:
+One of them apologizes and the friend encourages them, or Both apologize without outside intervention.
+If all three signals occur at the same time or fewer than two occur, the detector does not activate.
+Tasks:
+A)  Write the Boolean expression for the reconciliation output F.
+B) Design the logic gate implementation.
+
+9. The Multiverse Portal Controller
+Doctor Strange has built a digital controller that determines when it is safe to open a portal to another dimension.
+The controller receives three signals:
+•	S = Sorcerer Hero is concentrating on the portal
+•	W = Witch Hero is stabilizing the energy field
+•	V = Vision Unit confirms dimensional stability
+The portal can open if:
+Both S and W are stabilizing the portal together, OR
+Vision confirms stability and at least one of the two heroes is assisting.
+If none of these conditions are satisfied, the portal must remain closed to prevent a multiverse catastrophe.
+Tasks:
+A) Write the Boolean expression for output Portal.
+B) Draw the corresponding logic circuit.
+
+10. The Avengers Team Assembly Signal
+Before launching a major operation, Avengers headquarters uses an automated signal to determine whether the team assembly meeting should start.
+Three signals are monitored:
+•	H = Hulk has arrived at headquarters
+•	B = Archer Hero has arrived
+•	M = The meeting coordinator has arrived
+The meeting should only begin if the coordinator is present, because without coordination the meeting cannot proceed.
+In addition, at least one Avenger must be present for the meeting to be meaningful.
+If the coordinator is absent, the meeting cannot start even if the Avengers arrive.
+Tasks
+A) Derive the Boolean expression for output Meeting.
+B) Construct the logic circuit.
+
