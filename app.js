@@ -139,10 +139,10 @@ function showScreen(id) {
     "Securing session...",
     "Ready.",
   ];
-  const barEl     = document.getElementById("loading-bar");
-  const statusEl  = document.getElementById("loading-status");
-  let pct         = 0;
-  let statusIdx   = 0;
+  const barEl = document.getElementById("loading-bar");
+  const statusEl = document.getElementById("loading-status");
+  let pct = 0;
+  let statusIdx = 0;
 
   // Animate the loading bar from 0 → 100% over ~1.8s
   const interval = setInterval(() => {
@@ -167,10 +167,10 @@ function showScreen(id) {
    ════════════════════════════════════════════════════════════ */
 
 (function initLoginScreen() {
-  const nameInput  = document.getElementById("inp-name");
-  const codeInput  = document.getElementById("inp-code");
-  const loginBtn   = document.getElementById("btn-login");
-  const errorEl    = document.getElementById("login-error");
+  const nameInput = document.getElementById("inp-name");
+  const codeInput = document.getElementById("inp-code");
+  const loginBtn = document.getElementById("btn-login");
+  const errorEl = document.getElementById("login-error");
 
   function showError(msg) {
     errorEl.textContent = "⚠ " + msg;
@@ -242,16 +242,16 @@ function initDashboard(userName, userCode) {
   document.getElementById("chip-name").textContent = `${userName} · ${userCode}`;
 
   // ── Pick random questions (one of each type)
-  const analog  = pickRandom(ANALOG_QUESTIONS);
+  const analog = pickRandom(ANALOG_QUESTIONS);
   const digital = pickRandom(DIGITAL_QUESTIONS);
 
   // ── Render analog question
   document.getElementById("q-analog-text").textContent = analog.text;
-  document.getElementById("q-analog-id").textContent   = `Answer on paper · ${analog.id}`;
+  document.getElementById("q-analog-id").textContent = `Answer on paper`;
 
   // ── Render digital question
   document.getElementById("q-digital-text").textContent = digital.text;
-  document.getElementById("q-digital-id").textContent   = `Answer on paper · ${digital.id}`;
+  document.getElementById("q-digital-id").textContent = `Answer on paper`;
 
   // ── Save assigned questions to Supabase for remote admin panel
   if (typeof window.supabaseClient !== 'undefined' && window.supabaseClient !== null) {
@@ -261,7 +261,7 @@ function initDashboard(userName, userCode) {
       digital_id: digital.id,
       analog_id: analog.id
     };
-    
+
     window.supabaseClient.from('team_assignments').insert([teamData]).then(({ error }) => {
       if (error) console.error("Error saving to Supabase:", error);
     }).catch(err => {
@@ -278,20 +278,33 @@ function initDashboard(userName, userCode) {
     e.returnValue = "Your contest session is active. Are you sure you want to leave?";
   });
 
-  // ── Next Question
+  // ── Navigation Logic
   const btnNext = document.getElementById("btn-next-analog");
+  const btnBack = document.getElementById("btn-back-digital");
+  const cardDigital = document.getElementById("card-digital");
+  const cardAnalog = document.getElementById("card-analog");
+
   if (btnNext) {
     btnNext.addEventListener("click", () => {
-      document.getElementById("card-digital").style.display = "none";
-      document.getElementById("card-analog").style.display = "block";
+      cardDigital.classList.add("hidden");
+      cardAnalog.classList.remove("hidden");
+      cardAnalog.style.display = "block";
+    });
+  }
+
+  if (btnBack) {
+    btnBack.addEventListener("click", () => {
+      cardAnalog.classList.add("hidden");
+      cardDigital.classList.remove("hidden");
+      cardDigital.style.display = "block";
     });
   }
 }
 
 function startTimer(totalSeconds) {
-  const timerEl  = document.getElementById("timer-display");
-  const boxEl    = document.getElementById("timer-box");
-  let remaining  = totalSeconds;
+  const timerEl = document.getElementById("timer-display");
+  const boxEl = document.getElementById("timer-box");
+  let remaining = totalSeconds;
 
   // Clear any previous timer
   if (timerInterval) clearInterval(timerInterval);
@@ -325,11 +338,40 @@ function startTimer(totalSeconds) {
 function showTimesUp() {
   const overlay = document.getElementById("timesup-overlay");
   overlay.classList.remove("hidden");
-  // Disable all inputs on the dashboard (belt-and-suspenders)
+  
+  // Disable all inputs on the dashboard
   document.querySelectorAll(".q-card").forEach((card) => {
     card.style.pointerEvents = "none";
     card.style.opacity       = "0.5";
   });
+
+  // Automatically return to login screen after 5 seconds
+  setTimeout(() => {
+    // Hide overlay
+    overlay.classList.add("hidden");
+    
+    // Reset dashboard visuals for next session
+    document.querySelectorAll(".q-card").forEach((card) => {
+      card.style.pointerEvents = "auto";
+      card.style.opacity       = "1";
+    });
+    
+    // Hide analog card, show digital card for next session
+    document.getElementById("card-analog").classList.add("hidden");
+    document.getElementById("card-analog").style.display = "none";
+    document.getElementById("card-digital").classList.remove("hidden");
+    document.getElementById("card-digital").style.display = "block";
+
+    // Clear inputs and show login screen
+    document.getElementById("inp-name").value = "";
+    document.getElementById("inp-code").value = "";
+    document.getElementById("btn-login").disabled = false;
+    document.getElementById("btn-login").classList.remove("loading");
+    document.getElementById("btn-login").querySelector(".btn-icon").textContent = "⚡";
+    document.getElementById("btn-login").querySelector(".btn-text").textContent = "Login";
+
+    showScreen("screen-login");
+  }, 5000);
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -349,3 +391,14 @@ function tryRequestFullscreen() {
     });
   }
 }
+/* ════════════════════════════════════════════════════════════
+   ADMIN SHORTCUT
+   ════════════════════════════════════════════════════════════ */
+
+window.addEventListener("keydown", (e) => {
+  // Use Ctrl + Shift + A to access the admin panel
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "a") {
+    e.preventDefault();
+    window.location.href = "admin.html";
+  }
+});
