@@ -230,20 +230,119 @@ function showScreen(id) {
 let timerInterval = null;
 let globalUserName = "";
 let globalUserCode = "";
+let hasSubmittedAtLeastOne = false;
+let tabWarnings = 0;
+const MAX_WARNINGS = 3;
 
 document.getElementById("btn-enter-contest")?.addEventListener("click", () => {
-  initDashboard(globalUserName, globalUserCode);
-  showScreen("screen-dashboard");
+  initTokenSelection();
+  showScreen("screen-tokens");
   tryRequestFullscreen();
 });
 
-function initDashboard(userName, userCode) {
-  // ── Set user chip
-  document.getElementById("chip-name").textContent = `${userName} · ${userCode}`;
+async function initTokenSelection() {
+  const grid = document.getElementById("tokens-grid");
+  grid.innerHTML = "";
 
-  // ── Pick random questions (one of each type)
-  const analog = pickRandom(ANALOG_QUESTIONS);
-  const digital = pickRandom(DIGITAL_QUESTIONS);
+  // Show loading state on buttons
+  for (let i = 1; i <= 10; i++) {
+    const btn = document.createElement("button");
+    btn.className = "token-btn loading";
+    btn.textContent = i;
+    btn.disabled = true;
+    grid.appendChild(btn);
+  }
+
+  // Fetch taken tokens from Supabase
+  let takenTokens = [];
+  if (window.supabaseClient) {
+    try {
+      // Get the most recent 10 assignments
+      const { data, error } = await window.supabaseClient
+        .from('team_assignments')
+        .select('token_id')
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (!error && data) {
+        const history = data.map(r => r.token_id).filter(id => id !== null);
+        
+        // Logic: Find tokens in the current unfinished cycle
+        const seen = new Set();
+        const currentCycleTaken = [];
+        
+        for (const id of history) {
+          if (seen.has(id)) break; // Found start of previous cycle
+          seen.add(id);
+          currentCycleTaken.push(id);
+        }
+        
+        // If the cycle has reached 10, it resets for the next person
+        takenTokens = (currentCycleTaken.length === 10) ? [] : currentCycleTaken;
+      }
+    } catch (err) {
+      console.error("Failed to fetch tokens:", err);
+    }
+  }
+
+  // Render final buttons
+  grid.innerHTML = "";
+  for (let i = 1; i <= 10; i++) {
+    const btn = document.createElement("button");
+    btn.className = "token-btn";
+    btn.textContent = i;
+    
+    if (takenTokens.includes(i)) {
+      btn.disabled = true;
+    } else {
+      btn.addEventListener("click", async () => {
+        // Disable all buttons to prevent double click
+        document.querySelectorAll(".token-btn").forEach(b => b.disabled = true);
+        btn.classList.add("loading");
+
+        // DOUBLE CHECK: Is it still available? (Prevent race condition)
+        if (window.supabaseClient) {
+          const { data: freshData } = await window.supabaseClient
+            .from('team_assignments')
+            .select('token_id')
+            .order('created_at', { ascending: false })
+            .limit(10);
+            
+          const freshHistory = freshData?.map(r => r.token_id).filter(id => id !== null) || [];
+          const freshSeen = new Set();
+          const freshCycle = [];
+          for(const id of freshHistory) {
+            if(freshSeen.has(id)) break;
+            freshSeen.add(id);
+            freshCycle.push(id);
+          }
+          
+          const isTaken = (freshCycle.length < 10) && freshCycle.includes(i);
+          
+          if (isTaken) {
+            alert("⚠️ This token was just taken by another team! Please choose another.");
+            initTokenSelection(); // Refresh the grid
+            return;
+          }
+        }
+        
+        initDashboard(globalUserName, globalUserCode, i);
+        showScreen("screen-dashboard");
+      });
+    }
+    grid.appendChild(btn);
+  }
+}
+
+function initDashboard(userName, userCode, tokenId) {
+  // ── Set user chip
+  document.getElementById("chip-name").textContent = `${userName} · ${userCode} · #${tokenId}`;
+
+  // ── Assign questions based on Token ID
+  // Map token 1-10 to array indices (token 1 -> index 0, ..., token 10 -> index 9)
+  // If array is shorter than 10, wrap around using modulo
+  const digital = DIGITAL_QUESTIONS[(tokenId - 1) % DIGITAL_QUESTIONS.length];
+  const analog  = ANALOG_QUESTIONS[(tokenId - 1) % ANALOG_QUESTIONS.length];
 
   // ── Render analog question
   document.getElementById("q-analog-text").textContent = analog.text;
@@ -259,7 +358,8 @@ function initDashboard(userName, userCode) {
       name: userName,
       code: userCode,
       digital_id: digital.id,
-      analog_id: analog.id
+      analog_id: analog.id,
+      token_id: tokenId
     };
 
     window.supabaseClient.from('team_assignments').insert([teamData]).then(({ error }) => {
@@ -277,6 +377,8 @@ function initDashboard(userName, userCode) {
     e.preventDefault();
     e.returnValue = "Your contest session is active. Are you sure you want to leave?";
   });
+
+
 
   // ── Navigation Logic
   const btnNext = document.getElementById("btn-next-analog");
@@ -299,6 +401,172 @@ function initDashboard(userName, userCode) {
       cardDigital.style.display = "block";
     });
   }
+
+  // ── Camera Modal Elements
+  const cameraModal = document.getElementById("camera-modal");
+  const cameraVideo = document.getElementById("camera-video");
+  const cameraCanvas = document.getElementById("camera-canvas");
+  const btnCapture = document.getElementById("btn-capture");
+  const btnCloseCamera = document.getElementById("close-camera");
+  let currentStream = null;
+  let activeSubmissionType = null;
+
+  function stopCamera() {
+    if (currentStream) {
+      currentStream.getTracks().forEach(track => track.stop());
+      currentStream = null;
+    }
+    cameraModal.classList.add("hidden");
+  }
+
+  async function startCamera() {
+    try {
+      const constraints = {
+        video: { facingMode: "environment" }
+      };
+      currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+      cameraVideo.srcObject = currentStream;
+      cameraModal.classList.remove("hidden");
+    } catch (err) {
+      console.error("Camera access denied:", err);
+      alert("Camera access denied or not available. Please ensure you have given permission.");
+    }
+  }
+
+  btnCloseCamera?.addEventListener("click", stopCamera);
+
+  btnCapture?.addEventListener("click", async () => {
+    if (!activeSubmissionType) return;
+
+    // Capture from video to canvas
+    const context = cameraCanvas.getContext("2d");
+    
+    // Resize logic: Limit max dimension to 1024px
+    const MAX_DIM = 1024;
+    let width = cameraVideo.videoWidth;
+    let height = cameraVideo.videoHeight;
+    
+    if (width > height) {
+      if (width > MAX_DIM) {
+        height *= MAX_DIM / width;
+        width = MAX_DIM;
+      }
+    } else {
+      if (height > MAX_DIM) {
+        width *= MAX_DIM / height;
+        height = MAX_DIM;
+      }
+    }
+
+    cameraCanvas.width = width;
+    cameraCanvas.height = height;
+    context.drawImage(cameraVideo, 0, 0, width, height);
+
+    const base64Data = cameraCanvas.toDataURL("image/jpeg", 0.5);
+    const statusEl = document.getElementById(`status-${activeSubmissionType}`);
+    const btnSubmit = document.getElementById(`btn-submit-${activeSubmissionType}`);
+
+    // UI Loading
+    btnCapture.disabled = true;
+    btnCapture.querySelector(".btn-text").textContent = "Uploading...";
+    
+    try {
+      if (typeof window.supabaseClient !== 'undefined' && window.supabaseClient !== null) {
+        const updateData = {};
+        updateData[`${activeSubmissionType}_submission`] = base64Data;
+        updateData[`${activeSubmissionType}_submitted_at`] = new Date().toISOString();
+
+        const { data, error } = await window.supabaseClient
+          .from('team_assignments')
+          .update(updateData)
+          .match({ name: userName, code: userCode })
+          .select();
+
+        if (error) throw error;
+        if (!data || data.length === 0) {
+          throw new Error("Team record not found in database. Did you refresh the page? Try logging in again.");
+        }
+
+        // Mark as submitted
+        hasSubmittedAtLeastOne = true;
+
+        // Success
+        if (statusEl) {
+          statusEl.textContent = "✅ Submitted";
+          statusEl.classList.remove("hidden", "loading");
+        }
+        if (btnSubmit) {
+          btnSubmit.querySelector(".btn-text").textContent = "Update Submission";
+        }
+        
+        stopCamera();
+      }
+    } catch (err) {
+      console.error("Upload failed:", err);
+      alert(`Upload failed: ${err.message || "Unknown error"}. Please ensure your database table has 'digital_submission' and 'analog_submission' columns.`);
+    } finally {
+      btnCapture.disabled = false;
+      btnCapture.querySelector(".btn-text").textContent = "Capture & Upload";
+    }
+  });
+
+  // ── Submission Logic
+  function setupSubmission(type) {
+    const btn = document.getElementById(`btn-submit-${type}`);
+    if (!btn) return;
+
+    btn.addEventListener("click", () => {
+      activeSubmissionType = type;
+      startCamera();
+    });
+  }
+
+  setupSubmission("digital");
+  setupSubmission("analog");
+
+  // ── Tab Change Detection (Anti-Cheat)
+  const warningOverlay = document.getElementById("warning-overlay");
+  const warningCountEl = document.getElementById("warning-count");
+  const btnResume = document.getElementById("btn-resume-contest");
+
+  document.addEventListener("visibilitychange", async () => {
+    if (document.visibilityState === "hidden" && tabWarnings < MAX_WARNINGS) {
+      tabWarnings++;
+      warningCountEl.textContent = tabWarnings;
+      warningOverlay.classList.remove("hidden");
+
+      // Inform Admin Panel
+      if (window.supabaseClient) {
+        await window.supabaseClient
+          .from('team_assignments')
+          .update({ warnings: tabWarnings })
+          .match({ name: userName, code: userCode });
+      }
+    }
+  });
+
+  btnResume?.addEventListener("click", () => {
+    warningOverlay.classList.add("hidden");
+  });
+
+  // ── Leave Contest Logic
+  const btnLeave = document.getElementById("btn-leave-contest");
+  btnLeave?.addEventListener("click", () => {
+    if (!hasSubmittedAtLeastOne) {
+      alert("❌ Access Denied: You must submit at least one question before leaving the contest.");
+      return;
+    }
+
+    if (confirm("Are you sure you want to leave the contest? Your progress will be saved.")) {
+      // Clear session and return to login
+      stopCamera();
+      if (timerInterval) clearInterval(timerInterval);
+      showScreen("screen-login");
+      // Reset variables for next login
+      hasSubmittedAtLeastOne = false;
+      tabWarnings = 0;
+    }
+  });
 }
 
 function startTimer(totalSeconds) {

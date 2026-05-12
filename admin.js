@@ -61,7 +61,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const isDigital = q.type === "digital";
     modalBadge.textContent = `${isDigital ? "🔢 Digital" : "⚡ Analog"} · ${q.id}`;
     modalBadge.className   = `q-modal-badge ${q.type}`;
-    modalText.textContent  = q.text;
+    modalText.innerHTML  = q.text; // Use innerHTML to allow images
+    modalOverlay.classList.add("visible");
+  }
+
+  function openImageModal(type, base64Data, teamName) {
+    modalBadge.textContent = `${type === "digital" ? "🔢 Digital" : "⚡ Analog"} Submission · ${teamName}`;
+    modalBadge.className   = `q-modal-badge ${type}`;
+    modalText.innerHTML = `
+      <div style="text-align: center;">
+        <img src="${base64Data}" style="max-width: 100%; max-height: 70vh; border-radius: 8px; border: 1px solid var(--border2); margin-top: 10px;" alt="Submission" />
+        <p style="margin-top: 15px; font-family: 'Space Mono', monospace; font-size: 0.8rem; color: var(--text2);">
+          Right-click image to save or open in new tab.
+        </p>
+      </div>
+    `;
     modalOverlay.classList.add("visible");
   }
 
@@ -81,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function renderTable() {
     const { data, error } = await window.supabaseClient
       .from("team_assignments")
-      .select("*")
+      .select("id, name, code, digital_id, analog_id, created_at, digital_submission, analog_submission, digital_submitted_at, analog_submitted_at, warnings, token_id")
       .order("created_at", { ascending: false });
 
     tableBody.innerHTML = "";
@@ -101,11 +115,28 @@ document.addEventListener("DOMContentLoaded", () => {
       const time = new Date(team.created_at).toLocaleTimeString();
       const date = new Date(team.created_at).toLocaleDateString();
 
+      // We check if submission exists by checking if the field is not null
+      const digitalSub = team.digital_submission ? `<span class="q-id digital-sub" data-id="${team.id}" data-type="digital" title="View Digital Submission">📸 D</span>` : '';
+      const analogSub  = team.analog_submission  ? `<span class="q-id analog-sub"  data-id="${team.id}" data-type="analog"  title="View Analog Submission">📸 A</span>` : '';
+      
+      const subIcons = (digitalSub || analogSub) ? `${digitalSub} ${analogSub}` : '<span style="opacity:0.3; font-size:0.7rem;">None</span>';
+
+      const digitalTime = team.digital_submitted_at ? new Date(team.digital_submitted_at).toLocaleTimeString() : '<span style="opacity:0.3">-</span>';
+      const analogTime  = team.analog_submitted_at  ? new Date(team.analog_submitted_at).toLocaleTimeString()  : '<span style="opacity:0.3">-</span>';
+
+      const warnings = team.warnings || 0;
+      const warningBadge = warnings > 0 ? `<span style="color:var(--red); font-weight:bold;">⚠ ${warnings}</span>` : '<span style="opacity:0.3">0</span>';
+
       row.innerHTML = `
         <td>${team.name}</td>
         <td>${team.code}</td>
+        <td><span class="q-badge" style="background:var(--cyan2); color:#fff; padding:2px 8px; border-radius:4px; font-size:0.7rem;">#${team.token_id || '-'}</span></td>
         <td><span class="q-id" data-id="${team.digital_id}" title="Click to view question">${team.digital_id}</span></td>
         <td><span class="q-id" data-id="${team.analog_id}"  title="Click to view question">${team.analog_id}</span></td>
+        <td>${subIcons}</td>
+        <td>${warningBadge}</td>
+        <td>${digitalTime}</td>
+        <td>${analogTime}</td>
         <td>${date} ${time}</td>
       `;
       tableBody.appendChild(row);
@@ -113,7 +144,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Attach click listeners to all newly rendered id badges
     tableBody.querySelectorAll(".q-id").forEach(el => {
-      el.addEventListener("click", () => openModal(el.dataset.id));
+      if (el.classList.contains("digital-sub") || el.classList.contains("analog-sub")) {
+        el.addEventListener("click", async () => {
+          const id = el.dataset.id;
+          const type = el.dataset.type;
+          const teamName = el.closest('tr').cells[0].textContent;
+          
+          // Show loading in modal
+          modalBadge.textContent = "Loading Submission...";
+          modalText.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--cyan);">Fetching image data...</div>`;
+          modalOverlay.classList.add("visible");
+
+          // Fetch full submission data only when needed
+          const { data: subData, error: subError } = await window.supabaseClient
+            .from("team_assignments")
+            .select(`${type}_submission`)
+            .eq("id", id)
+            .single();
+
+          if (subError || !subData) {
+            modalText.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--red);">Error loading image: ${subError ? subError.message : "Not found"}</div>`;
+          } else {
+            openImageModal(type, subData[`${type}_submission`], teamName);
+          }
+        });
+      } else {
+        el.addEventListener("click", () => openModal(el.dataset.id));
+      }
     });
   }
 
