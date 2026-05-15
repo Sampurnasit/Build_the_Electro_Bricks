@@ -34,7 +34,7 @@ Then Captain America asks the engineering team:
   },
   {
     id: "A3",
-    text: `3.	A smart city installs LED street lights using a power system designed by Rocket in Thor’s New Asgard technology lab. At night, the lights flicker rapidly and the brightness changes continuously.
+    text: `A smart city installs LED street lights using a power system designed by Rocket in Thor’s New Asgard technology lab. At night, the lights flicker rapidly and the brightness changes continuously.
 After checking the system, Thor says:
 “The supply is DC… but not stable DC!”
 After resolving the problem, the voltage waveform shown appears in the above waveform. 
