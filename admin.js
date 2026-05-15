@@ -121,22 +121,24 @@ document.addEventListener("DOMContentLoaded", () => {
       
       const subIcons = (digitalSub || analogSub) ? `${digitalSub} ${analogSub}` : '<span style="opacity:0.3; font-size:0.7rem;">None</span>';
 
-      const digitalTime = team.digital_submitted_at ? new Date(team.digital_submitted_at).toLocaleTimeString() : '<span style="opacity:0.3">-</span>';
-      const analogTime  = team.analog_submitted_at  ? new Date(team.analog_submitted_at).toLocaleTimeString()  : '<span style="opacity:0.3">-</span>';
+      const digitalTime = team.digital_submitted_at ? new Date(team.digital_submitted_at).toLocaleTimeString() : null;
+      const analogTime  = team.analog_submitted_at  ? new Date(team.analog_submitted_at).toLocaleTimeString()  : null;
+      const submissionTime = digitalTime || analogTime || '<span style="opacity:0.3">-</span>';
 
       const warnings = team.warnings || 0;
       const warningBadge = warnings > 0 ? `<span style="color:var(--red); font-weight:bold;">⚠ ${warnings}</span>` : '<span style="opacity:0.3">0</span>';
 
+      const isLeft = team.digital_submission === 'LEFT';
+      const teamDisplayName = isLeft ? `${team.name} <span style="font-size:0.6rem; color:var(--text2); background:rgba(255,255,255,0.05); padding:2px 4px; border-radius:3px; margin-left:5px;">LEFT</span>` : team.name;
+
       row.innerHTML = `
-        <td>${team.name}</td>
-        <td>${team.code}</td>
+        <td>${teamDisplayName}</td>
         <td><span class="q-badge" style="background:var(--cyan2); color:#fff; padding:2px 8px; border-radius:4px; font-size:0.7rem;">#${team.token_id || '-'}</span></td>
         <td><span class="q-id" data-id="${team.digital_id}" title="Click to view question">${team.digital_id}</span></td>
         <td><span class="q-id" data-id="${team.analog_id}"  title="Click to view question">${team.analog_id}</span></td>
         <td>${subIcons}</td>
         <td>${warningBadge}</td>
-        <td>${digitalTime}</td>
-        <td>${analogTime}</td>
+        <td>${submissionTime}</td>
         <td>${date} ${time}</td>
       `;
       tableBody.appendChild(row);

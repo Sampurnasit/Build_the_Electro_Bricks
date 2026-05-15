@@ -15,83 +15,7 @@ const VALID_CODES = [
 // Track used codes within session (survives page navigation but not full reload)
 const usedCodes = new Set();
 
-const ANALOG_QUESTIONS = [
-  {
-    id: "A1",
-    text: "A BJT is configured in common-emitter mode with RC = 4.7 kΩ and RE = 1 kΩ. Given β = 100 and VCC = 12 V, calculate the Q-point (ICQ, VCEQ) and the small-signal AC voltage gain.",
-  },
-  {
-    id: "A2",
-    text: "Design a second-order Butterworth low-pass active filter with a cutoff frequency of 1 kHz using an op-amp. Determine all component values and draw the circuit schematic.",
-  },
-  {
-    id: "A3",
-    text: "An op-amp (LM741) is wired in inverting configuration with R1 = 10 kΩ and Rf = 100 kΩ. Input is a 0.5 V peak sinusoid at 500 Hz. Calculate the closed-loop gain, sketch the output waveform, and state the phase relationship.",
-  },
-  {
-    id: "A4",
-    text: "Explain the working principle of a Wien Bridge Oscillator. Derive the expression for the frequency of oscillation and state the gain condition required for sustained, undistorted oscillation.",
-  },
-  {
-    id: "A5",
-    text: "A full-wave bridge rectifier with a capacitor filter is powered by a 12 V RMS transformer. For RL = 1 kΩ and C = 1000 μF, calculate the DC output voltage, peak-to-peak ripple voltage, and ripple factor.",
-  },
-  {
-    id: "A6",
-    text: "Compare Class A, Class B, and Class AB power amplifiers. Discuss their biasing strategies, theoretical maximum efficiency, crossover distortion characteristics, and typical application areas.",
-  },
-  {
-    id: "A7",
-    text: "Design a Colpitts oscillator to generate a signal at 455 kHz. Specify the inductor and capacitor values, draw the circuit, and explain the positive feedback mechanism that sustains oscillation.",
-  },
-  {
-    id: "A8",
-    text: "An LM741 op-amp is configured as a non-inverting Schmitt trigger with R1 = 10 kΩ and R2 = 100 kΩ and ±15 V supply rails. Calculate the Upper Threshold Point (UTP) and Lower Threshold Point (LTP), and draw the complete transfer characteristic (hysteresis curve).",
-  },
-];
 
-const DIGITAL_QUESTIONS = [
-  {
-    id: "D1",
-    text: "The Security Vault System\n\nA high-security research lab has installed a digital vault that opens only when the correct logical conditions are satisfied.\nThe vault uses four sensors:\n\nA – Biometric authentication\nB – Access card verification\nC – PIN code verification\nD – Motion detector clearance\n\nThe vault unlocks when the following conditions are satisfied:\nIf biometric authentication and access card verification are both correct, the vault opens only if the motion detector shows no threat.\nIf PIN verification is correct but biometric fails, the vault can still open only when the access card is correct.\nIf both biometric and PIN are correct, the vault opens regardless of the motion detector.\nIf motion detector detects threat, the vault must remain locked unless both biometric and PIN are correct.\n\nTasks\n1. Form the Boolean expression for the vault unlocking system.\n2. Implement the simplified circuit using only NAND gates."
-  },
-  {
-    id: "D2",
-    text: "The City Development Approval System\n\nIn a large metropolitan region, the city council plans infrastructure projects such as bridges, parks, and transport systems. However, the council does not directly decide whether a project should proceed. Instead, a computerized decision system collects signals from three influential advisory groups before giving the final approval.\n\n• The first signal A comes from the Traditional Planning Council, a group that represents long-established administrative members of the city.\n• The second signal B comes from the Reform Committee, a newer group that often proposes alternative approaches to development.\n• The third signal C comes from the Citizens’ Review Board, which represents public opinion collected through surveys and civic meetings.\n\nThe computerized system follows a special rule. A project will be approved if both advisory groups A and B agree on it, since agreement between these two groups indicates strong stability in the decision.\nHowever, if the two advisory groups disagree, the system still allows the project to move forward if the Citizens’ Review Board supports the project and at least one of the advisory groups also supports it.\nIf none of these conditions are satisfied, the project is rejected by the system.\n\nTasks\nA) Identify the Boolean expression representing the approval output F.\nB) Determine the minimum number of gates required."
-  },
-  {
-    id: "D3",
-    text: "The Event Permission Monitoring Network\n\nA city uses an automated monitoring network to manage large public gatherings. Because the city often experiences simultaneous activities from different social organizations, the administration built a digital system that decides whether an event permit should be granted.\n\nThree sensors provide signals to the system:\n• X indicates that Organization X has announced a large gathering.\n• Y indicates that Organization Y has announced a large gathering.\n• Z indicates that the city security department has issued a safety alert.\n\nThe city administration has observed that if both organizations plan gatherings at the same time, managing the crowd becomes extremely difficult. Therefore, the permit system is designed to allow an event only when exactly one organization plans a gathering.\nHowever, even if only one organization plans an event, the system will not allow the permit if the security department has issued a safety alert.\nOnly when one and only one organization is planning a gathering and there is no security alert will the system automatically issue the permit.\n\nTasks\nA) Write the Boolean expression for the permit output P.\nB) Design the corresponding logic gate circuit."
-  },
-  {
-    id: "D4",
-    text: "The Debate Broadcast Controller\n\nA major broadcasting network organizes live debates between representatives of two influential civic groups. These debates are extremely popular among viewers and help citizens understand different viewpoints on public issues.\nThe broadcasting studio operates using an automated system that decides whether the live transmission should begin. \n\nThree digital signals are used as inputs to the system.\n• Signal A becomes 1 when the representative of Group A arrives at the studio.\n• Signal B becomes 1 when the representative of Group B arrives.\n• Signal M becomes 1 when the moderator responsible for managing the debate is present in the studio.\n\nThe broadcasting policy states that a debate can only be aired if the moderator is present, because discussions cannot proceed without supervision.\nAdditionally, at least one representative from either group must be present for the debate to make sense.\nIf the moderator is absent, the broadcast must never start regardless of the representatives’ presence. If the moderator is present and at least one representative arrives, the system will begin the live broadcast.\n\nTasks\nA) Derive the Boolean expression for the broadcast signal F.\nB) Draw the logic gate circuit for the system."
-  },
-  {
-    id: "D5",
-    text: "The Regional Opinion Analyzer\n\nA research institute conducts surveys across three major zones of a large region: the northern zone, the central zone, and the southern zone. Each zone sends a digital signal indicating whether the majority of respondents in that area support a new policy proposal.\n\nThe signals are defined as follows:\n• P = 1 if the northern zone supports the proposal\n• Q = 1 if the central zone supports the proposal\n• R = 1 if the southern zone supports the proposal\n\nTo maintain fairness, the institute decided that a proposal should be considered popular only if at least two regions support it. If support comes from fewer than two regions, the proposal will be classified as lacking sufficient public backing.\nA digital circuit is used to automatically evaluate the three signals and generate the final output indicating whether the proposal is widely supported.\n\nTasks:\nA) Develop the Boolean expression for the output F.\nB) Construct the logic gate circuit using AND and OR gates.\nC) Draw the truth table for the system."
-  },
-  {
-    id: "D6",
-    text: "The Surprise Gift Plan\n\nRahul wants to surprise his girlfriend Neha with a special gift. However, the surprise should only happen under specific circumstances so that it remains meaningful.\n\nThe system monitoring the plan has three inputs:\nR = Rahul has bought the gift\nN = Neha is at home\nF = Neha’s best friend is present to help organize the surprise\n\nThe surprise celebration will occur if Rahul has the gift and Neha is home.\nHowever, if Neha is not at home yet, the surprise can still proceed if Rahul has the gift and her friend is present to help set up everything before Neha arrives.\nIf Rahul hasn’t bought the gift, the plan obviously cannot happen.\n\nTasks:\nA) Determine the Boolean expression for output S (surprise happens).\nB) Draw the corresponding logic circuit."
-  },
-  {
-    id: "D7",
-    text: "The Study Date\n\nTwo college students, Aman and Riya, often meet in the library for study sessions. However, they only meet when certain conditions make the meeting productive.\n\nThree conditions are monitored:\n• A = Aman has completed his assignments\n• R = Riya has completed her assignments\n• L = The library is open\n\nTheir rule is simple:\nThe study session happens only if the library is open and at least one of them has completed their assignments so that they can help the other person.\nIf the library is closed, the meeting is automatically cancelled.\n\nTasks:\nA) Write the Boolean expression for output F (study date occurs).\nB) Design the logic circuit."
-  },
-  {
-    id: "D8",
-    text: "The Apology Detector\n\nAfter a small argument, Kunal and Tara decide to reconcile only when genuine effort is shown. Their friends jokingly design a “reconciliation detector” circuit to determine when things are likely to be resolved.\n\nThree signals are used:\n• K = Kunal apologizes\n• T = Tara apologizes\n• C = A close friend encourages them to talk\n\nThe reconciliation signal becomes 1 only when exactly two of these signals are active. This means that reconciliation is most likely when:\nOne of them apologizes and the friend encourages them, or Both apologize without outside intervention.\nIf all three signals occur at the same time or fewer than two occur, the detector does not activate.\n\nTasks:\nA) Write the Boolean expression for the reconciliation output F.\nB) Design the logic gate implementation."
-  },
-  {
-    id: "D9",
-    text: "The Multiverse Portal Controller\n\nDoctor Strange has built a digital controller that determines when it is safe to open a portal to another dimension.\n\nThe controller receives three signals:\n• S = Sorcerer Hero is concentrating on the portal\n• W = Witch Hero is stabilizing the energy field\n• V = Vision Unit confirms dimensional stability\n\nThe portal can open if:\nBoth S and W are stabilizing the portal together, OR\nVision confirms stability and at least one of the two heroes is assisting.\nIf none of these conditions are satisfied, the portal must remain closed to prevent a multiverse catastrophe.\n\nTasks:\nA) Write the Boolean expression for output Portal.\nB) Draw the corresponding logic circuit."
-  },
-  {
-    id: "D10",
-    text: "The Avengers Team Assembly Signal\n\nBefore launching a major operation, Avengers headquarters uses an automated signal to determine whether the team assembly meeting should start.\n\nThree signals are monitored:\n• H = Hulk has arrived at headquarters\n• B = Archer Hero has arrived\n• M = The meeting coordinator has arrived\n\nThe meeting should only begin if the coordinator is present, because without coordination the meeting cannot proceed.\nIn addition, at least one Avenger must be present for the meeting to be meaningful.\nIf the coordinator is absent, the meeting cannot start even if the Avengers arrive.\n\nTasks:\nA) Derive the Boolean expression for output Meeting.\nB) Construct the logic circuit."
-  }
-];
 
 /* ════════════════════════════════════════════════════════════
    TIMER CONFIG
@@ -156,8 +80,13 @@ function showScreen(id) {
 
     if (pct >= 100) {
       clearInterval(interval);
-      // Small pause then transition to login
-      setTimeout(() => showScreen("screen-login"), 300);
+      // Verify Supabase Connection
+      if (!window.supabaseClient) {
+        statusEl.textContent = "⚠ Supabase Connection Failed!";
+        statusEl.style.color = "var(--red)";
+      } else {
+        setTimeout(() => showScreen("screen-login"), 300);
+      }
     }
   }, 45);
 })();
@@ -185,27 +114,74 @@ function showScreen(id) {
     errorEl.classList.add("hidden");
   }
 
-  function attemptLogin() {
+  const leadModeBtn = document.getElementById("btn-lead-mode");
+
+  leadModeBtn?.addEventListener("click", () => {
+    isLeadMode = !isLeadMode;
+    if (isLeadMode) {
+      leadModeBtn.querySelector(".btn-text").textContent = "Switch to Standard Mode (Contestant)";
+      loginBtn.querySelector(".btn-text").textContent = "Login as Team Lead";
+      codeInput.parentElement.style.display = "none"; // Code not needed for lead
+    } else {
+      leadModeBtn.querySelector(".btn-text").textContent = "Switch to Team Lead Mode (Submission)";
+      loginBtn.querySelector(".btn-text").textContent = "Login";
+      codeInput.parentElement.style.display = "block";
+    }
+  });
+
+  async function attemptLogin() {
     clearError();
     const name = nameInput.value.trim();
     const code = codeInput.value.trim().toUpperCase();
 
-    // Validation
-    if (!name) { showError("Please enter your full name."); nameInput.focus(); return; }
+    if (!name) { showError("Please enter your team name."); nameInput.focus(); return; }
+
+    if (isLeadMode) {
+      // LEAD LOGIN: Check if team exists
+      loginBtn.disabled = true;
+      loginBtn.classList.add("loading");
+      
+      try {
+        const { data, error } = await window.supabaseClient
+          .from('team_assignments')
+          .select('*')
+          .ilike('name', name) // Case-insensitive search
+          .order('created_at', { ascending: false }) // Get latest session if multiples exist
+          .limit(1)
+          .maybeSingle();
+
+        if (error) throw error;
+        
+        if (!data) {
+          alert(`Team "${name}" not found. Ensure the contestants have picked a token on the PC first.`);
+          showError("Team not found.");
+          return;
+        }
+        
+        globalUserName = data.name;
+        globalUserCode = data.code;
+        initLeadSubmission(data);
+        showScreen("screen-lead-submission");
+      } catch (err) {
+        console.error("Lead Login Error:", err);
+        alert("Database Error: " + err.message);
+        showError("Database connection failed.");
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.classList.remove("loading");
+      }
+      return;
+    }
+
+    // STANDARD LOGIN
     if (!code) { showError("Please enter your access code."); codeInput.focus(); return; }
-    if (!VALID_CODES.includes(code)) { showError("Invalid access code. Please check and try again."); codeInput.focus(); return; }
-    if (usedCodes.has(code)) { showError("This access code has already been used in this session."); codeInput.focus(); return; }
+    if (!VALID_CODES.includes(code)) { showError("Invalid access code."); codeInput.focus(); return; }
+    if (usedCodes.has(code)) { showError("Code already used."); codeInput.focus(); return; }
 
-    // Mark code as used
     usedCodes.add(code);
-
-    // Loading state
     loginBtn.disabled = true;
     loginBtn.classList.add("loading");
-    loginBtn.querySelector(".btn-icon").textContent = "⟳";
-    loginBtn.querySelector(".btn-text").textContent = "Authenticating...";
 
-    // Transition to rules screen after brief delay
     setTimeout(() => {
       globalUserName = name;
       globalUserCode = code;
@@ -230,9 +206,30 @@ function showScreen(id) {
 let timerInterval = null;
 let globalUserName = "";
 let globalUserCode = "";
+let isLeadMode = false;
+let leadDigitalImage = null;
+let leadAnalogImage = null;
+let activeCaptureType = null;
+let currentStream = null;
+
+const cameraModal = document.getElementById("camera-modal");
+const cameraVideo = document.getElementById("camera-video");
+const cameraCanvas = document.getElementById("camera-canvas");
+const btnCapture = document.getElementById("btn-capture");
+const btnCloseCamera = document.getElementById("close-camera");
+const MAX_WARNINGS = 3;
 let hasSubmittedAtLeastOne = false;
 let tabWarnings = 0;
-const MAX_WARNINGS = 3;
+
+async function unlockToken() {
+  if (window.supabaseClient && globalUserName && globalUserCode) {
+    // Mark as inactive instead of deleting to preserve record for admin
+    await window.supabaseClient
+      .from('team_assignments')
+      .update({ warnings: -1 }) // Using -1 in warnings to signify "Left/Inactive"
+      .match({ name: globalUserName, code: globalUserCode });
+  }
+}
 
 document.getElementById("btn-enter-contest")?.addEventListener("click", () => {
   initTokenSelection();
@@ -242,95 +239,103 @@ document.getElementById("btn-enter-contest")?.addEventListener("click", () => {
 
 async function initTokenSelection() {
   const grid = document.getElementById("tokens-grid");
-  grid.innerHTML = "";
+  const isRefresh = grid.children.length === 10 && !grid.querySelector(".loading");
 
-  // Show loading state on buttons
-  for (let i = 1; i <= 10; i++) {
-    const btn = document.createElement("button");
-    btn.className = "token-btn loading";
-    btn.textContent = i;
-    btn.disabled = true;
-    grid.appendChild(btn);
+  if (!isRefresh) {
+    grid.innerHTML = "";
+    // Show loading state on buttons
+    for (let i = 1; i <= 10; i++) {
+      const btn = document.createElement("button");
+      btn.className = "token-btn loading";
+      btn.textContent = i;
+      btn.setAttribute("data-token", i);
+      btn.disabled = true;
+      grid.appendChild(btn);
+    }
   }
 
-  // Fetch taken tokens from Supabase
+  // Fetch taken tokens from Supabase (Only active ones)
   let takenTokens = [];
   if (window.supabaseClient) {
     try {
-      // Get the most recent 10 assignments
       const { data, error } = await window.supabaseClient
         .from('team_assignments')
-        .select('token_id')
-        .order('created_at', { ascending: false })
-        .limit(10);
-
+        .select('token_id, warnings, digital_submission')
+        .is('digital_submitted_at', null);
+        
       if (!error && data) {
-        const history = data.map(r => r.token_id).filter(id => id !== null);
-        
-        // Logic: Find tokens in the current unfinished cycle
-        const seen = new Set();
-        const currentCycleTaken = [];
-        
-        for (const id of history) {
-          if (seen.has(id)) break; // Found start of previous cycle
-          seen.add(id);
-          currentCycleTaken.push(id);
-        }
-        
-        // If the cycle has reached 10, it resets for the next person
-        takenTokens = (currentCycleTaken.length === 10) ? [] : currentCycleTaken;
+        takenTokens = data
+          .filter(r => r.token_id !== null && r.warnings !== -1 && r.digital_submission !== 'LEFT')
+          .map(r => r.token_id);
       }
     } catch (err) {
       console.error("Failed to fetch tokens:", err);
     }
   }
 
-  // Render final buttons
-  grid.innerHTML = "";
-  for (let i = 1; i <= 10; i++) {
-    const btn = document.createElement("button");
-    btn.className = "token-btn";
-    btn.textContent = i;
-    
-    if (takenTokens.includes(i)) {
-      btn.disabled = true;
-    } else {
-      btn.addEventListener("click", async () => {
-        // Disable all buttons to prevent double click
-        document.querySelectorAll(".token-btn").forEach(b => b.disabled = true);
-        btn.classList.add("loading");
+  // Render final buttons or update them
+  if (isRefresh) {
+    const buttons = grid.querySelectorAll(".token-btn");
+    buttons.forEach((btn, idx) => {
+      const i = idx + 1;
+      const isTaken = takenTokens.includes(i);
+      btn.disabled = isTaken;
+    });
+  } else {
+    grid.innerHTML = "";
+    for (let i = 1; i <= 10; i++) {
+      const btn = document.createElement("button");
+      btn.className = "token-btn";
+      btn.textContent = i;
+      btn.setAttribute("data-token", i);
+      
+      if (takenTokens.includes(i)) {
+        btn.disabled = true;
+      } else {
+        btn.addEventListener("click", async () => {
+          // Disable all buttons to prevent double click
+          document.querySelectorAll(".token-btn").forEach(b => b.disabled = true);
+          btn.classList.add("loading");
 
-        // DOUBLE CHECK: Is it still available? (Prevent race condition)
-        if (window.supabaseClient) {
-          const { data: freshData } = await window.supabaseClient
-            .from('team_assignments')
-            .select('token_id')
-            .order('created_at', { ascending: false })
-            .limit(10);
+          // DOUBLE CHECK: Is it still available? (Prevent race condition)
+          if (window.supabaseClient) {
+            const { data: freshData } = await window.supabaseClient
+              .from('team_assignments')
+              .select('token_id, warnings, digital_submission')
+              .is('digital_submitted_at', null);
+              
+            const activeTokens = freshData
+              ?.filter(r => r.token_id !== null && r.warnings !== -1 && r.digital_submission !== 'LEFT')
+              .map(r => r.token_id) || [];
+              
+            const isTaken = activeTokens.includes(i);
             
-          const freshHistory = freshData?.map(r => r.token_id).filter(id => id !== null) || [];
-          const freshSeen = new Set();
-          const freshCycle = [];
-          for(const id of freshHistory) {
-            if(freshSeen.has(id)) break;
-            freshSeen.add(id);
-            freshCycle.push(id);
+            if (isTaken) {
+              alert("⚠️ This token was just taken by another team! Please choose another.");
+              initTokenSelection(); // Refresh the grid
+              return;
+            }
           }
           
-          const isTaken = (freshCycle.length < 10) && freshCycle.includes(i);
-          
-          if (isTaken) {
-            alert("⚠️ This token was just taken by another team! Please choose another.");
-            initTokenSelection(); // Refresh the grid
-            return;
-          }
-        }
-        
-        initDashboard(globalUserName, globalUserCode, i);
-        showScreen("screen-dashboard");
-      });
+          initDashboard(globalUserName, globalUserCode, i);
+          showScreen("screen-dashboard");
+        });
+      }
+      grid.appendChild(btn);
     }
-    grid.appendChild(btn);
+  }
+
+  // Auto-refresh token grid every 5 seconds while on this screen
+  if (!window.tokenRefreshInterval) {
+    window.tokenRefreshInterval = setInterval(() => {
+      const activeScreen = document.querySelector(".screen.active")?.id;
+      if (activeScreen === "screen-tokens") {
+        initTokenSelection();
+      } else {
+        clearInterval(window.tokenRefreshInterval);
+        window.tokenRefreshInterval = null;
+      }
+    }, 5000);
   }
 }
 
@@ -341,32 +346,89 @@ function initDashboard(userName, userCode, tokenId) {
   // ── Assign questions based on Token ID
   // Map token 1-10 to array indices (token 1 -> index 0, ..., token 10 -> index 9)
   // If array is shorter than 10, wrap around using modulo
-  const digital = DIGITAL_QUESTIONS[(tokenId - 1) % DIGITAL_QUESTIONS.length];
-  const analog  = ANALOG_QUESTIONS[(tokenId - 1) % ANALOG_QUESTIONS.length];
+  const digital = window.DIGITAL_QUESTIONS[(tokenId - 1) % window.DIGITAL_QUESTIONS.length];
+  const analog  = window.ANALOG_QUESTIONS[(tokenId - 1) % window.ANALOG_QUESTIONS.length];
 
   // ── Render analog question
-  document.getElementById("q-analog-text").textContent = analog.text;
-  document.getElementById("q-analog-id").textContent = `Answer on paper`;
+  const qAnalogText = document.getElementById("q-analog-text");
+  const qAnalogImages = document.getElementById("q-analog-images");
+  qAnalogText.textContent = analog.text;
+  qAnalogImages.innerHTML = "";
+  if (analog.images && analog.images.length > 0) {
+    analog.images.forEach(src => {
+      const img = document.createElement("img");
+      img.src = src;
+      img.alt = "Question Image";
+      qAnalogImages.appendChild(img);
+    });
+  }
+  document.getElementById("q-analog-id").textContent = `ID: ${analog.id}`;
 
   // ── Render digital question
-  document.getElementById("q-digital-text").textContent = digital.text;
-  document.getElementById("q-digital-id").textContent = `Answer on paper`;
-
-  // ── Save assigned questions to Supabase for remote admin panel
-  if (typeof window.supabaseClient !== 'undefined' && window.supabaseClient !== null) {
-    const teamData = {
-      name: userName,
-      code: userCode,
-      digital_id: digital.id,
-      analog_id: analog.id,
-      token_id: tokenId
-    };
-
-    window.supabaseClient.from('team_assignments').insert([teamData]).then(({ error }) => {
-      if (error) console.error("Error saving to Supabase:", error);
-    }).catch(err => {
-      console.error("Supabase saving failed:", err);
+  const qDigitalText = document.getElementById("q-digital-text");
+  const qDigitalImages = document.getElementById("q-digital-images");
+  qDigitalText.textContent = digital.text;
+  qDigitalImages.innerHTML = "";
+  if (digital.images && digital.images.length > 0) {
+    digital.images.forEach(src => {
+      const img = document.createElement("img");
+      img.src = src;
+      img.alt = "Question Image";
+      qDigitalImages.appendChild(img);
     });
+  }
+  document.getElementById("q-digital-id").textContent = `ID: ${digital.id}`;
+
+  // ── Save/Update assignment in Supabase
+  if (window.supabaseClient) {
+    // Manual Upsert Flow to avoid unique constraint issues
+    window.supabaseClient
+      .from('team_assignments')
+      .select('*')
+      .ilike('name', userName)
+      .maybeSingle()
+      .then(({ data: existing, error: fetchError }) => {
+        if (fetchError) throw fetchError;
+
+        // Preserve warnings (don't reset to 0 if they already have some)
+        const preservedWarnings = (existing && typeof existing.warnings === 'number') ? existing.warnings : 0;
+        tabWarnings = (preservedWarnings === -1) ? 0 : preservedWarnings; 
+
+        const teamData = {
+          name: userName,
+          code: userCode,
+          digital_id: digital.id,
+          analog_id: analog.id,
+          token_id: tokenId,
+          warnings: tabWarnings,
+          digital_submission: null // Reset 'LEFT' status if resuming
+        };
+
+        if (existing) {
+          // UPDATE existing record
+          return window.supabaseClient
+            .from('team_assignments')
+            .update(teamData)
+            .eq('id', existing.id);
+        } else {
+          // INSERT new record
+          return window.supabaseClient
+            .from('team_assignments')
+            .insert([teamData]);
+        }
+      })
+      .then(({ error }) => {
+        if (error) {
+          console.error("❌ Supabase Sync Error:", error);
+          alert("Database Error: " + error.message);
+        } else {
+          console.log("✅ Session synced for:", userName);
+        }
+      })
+      .catch(err => {
+        console.error("❌ Supabase Exception:", err);
+        alert("Connection Exception: " + err.message);
+      });
   }
 
   // ── Start countdown timer
@@ -401,128 +463,103 @@ function initDashboard(userName, userCode, tokenId) {
       cardDigital.style.display = "block";
     });
   }
+}
 
-  // ── Camera Modal Elements
-  const cameraModal = document.getElementById("camera-modal");
-  const cameraVideo = document.getElementById("camera-video");
-  const cameraCanvas = document.getElementById("camera-canvas");
-  const btnCapture = document.getElementById("btn-capture");
-  const btnCloseCamera = document.getElementById("close-camera");
-  let currentStream = null;
-  let activeSubmissionType = null;
+// ── Lead Submission Logic
+function initLeadSubmission(data) {
+  document.getElementById("lead-team-info").textContent = `${data.name} · Token #${data.token_id}`;
+  
+  const btnDigital = document.getElementById("btn-capture-digital");
+  const btnAnalog = document.getElementById("btn-capture-analog");
+  const btnFinish = document.getElementById("btn-lead-finish");
 
-  function stopCamera() {
-    if (currentStream) {
-      currentStream.getTracks().forEach(track => track.stop());
-      currentStream = null;
+  btnDigital.onclick = () => { activeCaptureType = "digital"; startCamera(); };
+  btnAnalog.onclick = () => { activeCaptureType = "analog"; startCamera(); };
+
+    btnFinish.disabled = true; // Disabled until at least one is captured
+    btnFinish.onclick = async () => {
+    if (confirm("Submit both answers and finish the contest?")) {
+      btnFinish.disabled = true;
+      btnFinish.textContent = "Finalizing...";
+      await performLeadFinalSubmission();
     }
-    cameraModal.classList.add("hidden");
-  }
+  };
+}
 
-  async function startCamera() {
-    try {
-      const constraints = {
-        video: { facingMode: "environment" }
-      };
-      currentStream = await navigator.mediaDevices.getUserMedia(constraints);
-      cameraVideo.srcObject = currentStream;
-      cameraModal.classList.remove("hidden");
-    } catch (err) {
-      console.error("Camera access denied:", err);
-      alert("Camera access denied or not available. Please ensure you have given permission.");
-    }
+async function startCamera() {
+  try {
+    const constraints = { video: { facingMode: "environment" } };
+    currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+    cameraVideo.srcObject = currentStream;
+    cameraModal.classList.remove("hidden");
+  } catch (err) {
+    alert("Camera access failed: " + err.message);
   }
+}
+
+function stopCamera() {
+  if (currentStream) {
+    currentStream.getTracks().forEach(t => t.stop());
+    currentStream = null;
+  }
+  cameraModal.classList.add("hidden");
+}
 
   btnCloseCamera?.addEventListener("click", stopCamera);
 
-  btnCapture?.addEventListener("click", async () => {
-    if (!activeSubmissionType) return;
-
-    // Capture from video to canvas
+  btnCapture?.addEventListener("click", () => {
     const context = cameraCanvas.getContext("2d");
-    
-    // Resize logic: Limit max dimension to 1024px
     const MAX_DIM = 1024;
-    let width = cameraVideo.videoWidth;
-    let height = cameraVideo.videoHeight;
+    let w = cameraVideo.videoWidth;
+    let h = cameraVideo.videoHeight;
+    if (w > h) { if (w > MAX_DIM) { h *= MAX_DIM / w; w = MAX_DIM; } }
+    else { if (h > MAX_DIM) { w *= MAX_DIM / h; h = MAX_DIM; } }
+    cameraCanvas.width = w; cameraCanvas.height = h;
+    context.drawImage(cameraVideo, 0, 0, w, h);
+    const data = cameraCanvas.toDataURL("image/jpeg", 0.6);
     
-    if (width > height) {
-      if (width > MAX_DIM) {
-        height *= MAX_DIM / width;
-        width = MAX_DIM;
-      }
+    if (activeCaptureType === "digital") {
+      leadDigitalImage = data;
+      document.getElementById("text-digital-status").textContent = "✅ Captured (Change)";
     } else {
-      if (height > MAX_DIM) {
-        width *= MAX_DIM / height;
-        height = MAX_DIM;
-      }
+      leadAnalogImage = data;
+      document.getElementById("text-analog-status").textContent = "✅ Captured (Change)";
     }
-
-    cameraCanvas.width = width;
-    cameraCanvas.height = height;
-    context.drawImage(cameraVideo, 0, 0, width, height);
-
-    const base64Data = cameraCanvas.toDataURL("image/jpeg", 0.5);
-    const statusEl = document.getElementById(`status-${activeSubmissionType}`);
-    const btnSubmit = document.getElementById(`btn-submit-${activeSubmissionType}`);
-
-    // UI Loading
-    btnCapture.disabled = true;
-    btnCapture.querySelector(".btn-text").textContent = "Uploading...";
     
-    try {
-      if (typeof window.supabaseClient !== 'undefined' && window.supabaseClient !== null) {
-        const updateData = {};
-        updateData[`${activeSubmissionType}_submission`] = base64Data;
-        updateData[`${activeSubmissionType}_submitted_at`] = new Date().toISOString();
-
-        const { data, error } = await window.supabaseClient
-          .from('team_assignments')
-          .update(updateData)
-          .match({ name: userName, code: userCode })
-          .select();
-
-        if (error) throw error;
-        if (!data || data.length === 0) {
-          throw new Error("Team record not found in database. Did you refresh the page? Try logging in again.");
-        }
-
-        // Mark as submitted
-        hasSubmittedAtLeastOne = true;
-
-        // Success
-        if (statusEl) {
-          statusEl.textContent = "✅ Submitted";
-          statusEl.classList.remove("hidden", "loading");
-        }
-        if (btnSubmit) {
-          btnSubmit.querySelector(".btn-text").textContent = "Update Submission";
-        }
-        
-        stopCamera();
-      }
-    } catch (err) {
-      console.error("Upload failed:", err);
-      alert(`Upload failed: ${err.message || "Unknown error"}. Please ensure your database table has 'digital_submission' and 'analog_submission' columns.`);
-    } finally {
-      btnCapture.disabled = false;
-      btnCapture.querySelector(".btn-text").textContent = "Capture & Upload";
-    }
+    checkLeadSubmitReady();
+    stopCamera();
   });
 
-  // ── Submission Logic
-  function setupSubmission(type) {
-    const btn = document.getElementById(`btn-submit-${type}`);
-    if (!btn) return;
-
-    btn.addEventListener("click", () => {
-      activeSubmissionType = type;
-      startCamera();
-    });
+  function checkLeadSubmitReady() {
+    const btn = document.getElementById("btn-lead-finish");
+    btn.disabled = !(leadDigitalImage || leadAnalogImage);
   }
 
-  setupSubmission("digital");
-  setupSubmission("analog");
+  async function performLeadFinalSubmission() {
+    if (window.supabaseClient) {
+      const { error } = await window.supabaseClient
+        .from('team_assignments')
+        .update({
+          digital_submission: leadDigitalImage,
+          analog_submission: leadAnalogImage,
+          digital_submitted_at: new Date().toISOString(),
+          analog_submitted_at: new Date().toISOString()
+        })
+        .match({ name: globalUserName, code: globalUserCode });
+
+      if (!error) {
+        alert("Contest finished successfully!");
+        showScreen("screen-login");
+      } else {
+        alert("Submission failed. Try again.");
+        document.getElementById("btn-lead-finish").disabled = false;
+      }
+    }
+  }
+
+  document.getElementById("btn-lead-logout")?.addEventListener("click", () => {
+    showScreen("screen-login");
+  });
 
   // ── Tab Change Detection (Anti-Cheat)
   const warningOverlay = document.getElementById("warning-overlay");
@@ -530,17 +567,43 @@ function initDashboard(userName, userCode, tokenId) {
   const btnResume = document.getElementById("btn-resume-contest");
 
   document.addEventListener("visibilitychange", async () => {
-    if (document.visibilityState === "hidden" && tabWarnings < MAX_WARNINGS) {
+    // Only warn if on the dashboard and not a lead
+    const activeScreen = document.querySelector(".screen.active")?.id;
+    if (activeScreen === "screen-dashboard" && !isLeadMode && document.visibilityState === "hidden" && tabWarnings < MAX_WARNINGS) {
       tabWarnings++;
       warningCountEl.textContent = tabWarnings;
-      warningOverlay.classList.remove("hidden");
-
+      
       // Inform Admin Panel
-      if (window.supabaseClient) {
-        await window.supabaseClient
+      if (window.supabaseClient && globalUserName && globalUserCode) {
+        window.supabaseClient
           .from('team_assignments')
           .update({ warnings: tabWarnings })
-          .match({ name: userName, code: userCode });
+          .match({ name: globalUserName, code: globalUserCode });
+      }
+
+      if (tabWarnings >= MAX_WARNINGS) {
+        alert("🚫 DISQUALIFIED: You have switched tabs too many times.");
+        showScreen("screen-login"); // Return to login immediately
+        
+        // Final sync in background
+        if (window.supabaseClient && globalUserName && globalUserCode) {
+          window.supabaseClient
+            .from('team_assignments')
+            .update({ 
+              digital_submission: 'DISQUALIFIED',
+              digital_submitted_at: new Date().toISOString() 
+            })
+            .match({ name: globalUserName, code: globalUserCode })
+            .then(() => {
+               if (timerInterval) clearInterval(timerInterval);
+               // Optional: fully reset app state
+               window.location.reload(); 
+            });
+        } else {
+          window.location.reload();
+        }
+      } else {
+        warningOverlay.classList.remove("hidden");
       }
     }
   });
@@ -551,22 +614,70 @@ function initDashboard(userName, userCode, tokenId) {
 
   // ── Leave Contest Logic
   const btnLeave = document.getElementById("btn-leave-contest");
-  btnLeave?.addEventListener("click", () => {
-    if (!hasSubmittedAtLeastOne) {
-      alert("❌ Access Denied: You must submit at least one question before leaving the contest.");
-      return;
-    }
-
-    if (confirm("Are you sure you want to leave the contest? Your progress will be saved.")) {
-      // Clear session and return to login
-      stopCamera();
+  btnLeave?.addEventListener("click", async () => {
+    if (confirm("Are you sure you want to leave the contest? Your token will be released.")) {
+      if (window.supabaseClient && globalUserName && globalUserCode) {
+        // Store leaving time and mark as inactive
+        await window.supabaseClient
+          .from('team_assignments')
+          .update({ 
+            digital_submission: 'LEFT',
+            digital_submitted_at: new Date().toISOString() 
+          })
+          .match({ name: globalUserName, code: globalUserCode });
+      }
+      
       if (timerInterval) clearInterval(timerInterval);
       showScreen("screen-login");
-      // Reset variables for next login
       hasSubmittedAtLeastOne = false;
       tabWarnings = 0;
     }
   });
+
+  // Handle tab close / refresh
+  window.addEventListener("beforeunload", () => {
+    unlockToken();
+  });
+
+async function performFinalSubmission() {
+  const statusEl = document.getElementById("status-final");
+
+  try {
+    if (typeof window.supabaseClient !== 'undefined' && window.supabaseClient !== null) {
+      const updateData = {
+        digital_submission: "COMPLETED",
+        analog_submission: "COMPLETED",
+        digital_submitted_at: new Date().toISOString(),
+        analog_submitted_at: new Date().toISOString()
+      };
+
+      const { error } = await window.supabaseClient
+        .from('team_assignments')
+        .update(updateData)
+        .match({ name: globalUserName, code: globalUserCode });
+
+      if (error) throw error;
+
+      hasSubmittedAtLeastOne = true;
+      if (statusEl) {
+        statusEl.textContent = "✅ Contest Completed Successfully";
+        statusEl.classList.remove("hidden");
+      }
+      
+      // Small delay then leave
+      setTimeout(() => {
+        if (timerInterval) clearInterval(timerInterval);
+        showScreen("screen-login");
+        // Reset dashboard state
+        document.getElementById("card-analog").classList.add("hidden");
+        document.getElementById("card-analog").style.display = "none";
+        document.getElementById("card-digital").classList.remove("hidden");
+        document.getElementById("card-digital").style.display = "block";
+      }, 2000);
+    }
+  } catch (err) {
+    console.error("Final submission failed:", err);
+  }
 }
 
 function startTimer(totalSeconds) {
@@ -607,6 +718,11 @@ function showTimesUp() {
   const overlay = document.getElementById("timesup-overlay");
   overlay.classList.remove("hidden");
   
+  // Auto-submit logic
+  if (typeof performFinalSubmission === 'function') {
+    performFinalSubmission(); // Call without image data to mark as auto-submitted
+  }
+
   // Disable all inputs on the dashboard
   document.querySelectorAll(".q-card").forEach((card) => {
     card.style.pointerEvents = "none";

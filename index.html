@@ -77,6 +77,10 @@
           <span class="btn-text">Login</span>
         </button>
 
+        <button class="btn btn-secondary" id="btn-lead-mode" style="margin-top: 10px; background: rgba(0, 229, 255, 0.05); border: 1px dashed var(--cyan); font-size: 0.7rem;">
+          <span class="btn-text">Switch to Team Lead Mode (Submission)</span>
+        </button>
+
         <p class="login-note">
           Access codes are distributed offline by the organizers.<br />
           Each code is single-use only.
@@ -197,21 +201,15 @@
             <span class="q-badge digital">🔢 Digital</span>
             <span class="q-icon">▦</span>
           </div>
+          <div id="q-digital-images" class="q-images"></div>
           <div class="q-text" id="q-digital-text">Loading question...</div>
           <div class="q-footer">
             <div class="dot-pulse"></div>
             <span id="q-digital-id">Answer on paper</span>
           </div>
-          <div class="action-row" style="margin-top: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-            <div class="submission-zone" id="submit-digital-zone">
-              <button class="btn btn-submit" id="btn-submit-digital">
-                <span class="btn-icon">📸</span>
-                <span class="btn-text">Take Photo & Submit</span>
-              </button>
-              <div class="submit-status hidden" id="status-digital">✅ Submitted</div>
-            </div>
+          <div class="action-row" style="margin-top: 1.5rem; display: flex; justify-content: center;">
             <button class="btn btn-secondary" id="btn-next-analog"
-              style="background: rgba(255,255,255,0.1); border: 1px solid var(--digital-color);">
+              style="background: rgba(255,255,255,0.1); border: 1px solid var(--digital-color); width: 100%;">
               <span class="btn-text">Next: Analog Question ➔</span>
             </button>
           </div>
@@ -224,23 +222,28 @@
             <span class="q-badge analog">⚡ Analog</span>
             <span class="q-icon">〜</span>
           </div>
+          <div id="q-analog-images" class="q-images"></div>
           <div class="q-text" id="q-analog-text">Loading question...</div>
           <div class="q-footer">
             <div class="dot-pulse"></div>
             <div id="q-analog-id">Answer on paper</div>
           </div>
           <div class="action-row" style="margin-top: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-            <div class="submission-zone" id="submit-analog-zone">
-              <button class="btn btn-submit" id="btn-submit-analog">
-                <span class="btn-icon">📸</span>
-                <span class="btn-text">Take Photo & Submit</span>
-              </button>
-              <div class="submit-status hidden" id="status-analog">✅ Submitted</div>
-            </div>
             <button class="btn btn-secondary" id="btn-back-digital"
-              style="background: rgba(255,255,255,0.1); border: 1px solid var(--analog-color);">
+              style="background: rgba(255,255,255,0.1); border: 1px solid var(--analog-color); width: 100%;">
               <span class="btn-text">⇠ Back: Digital Question</span>
             </button>
+            <div class="submission-zone" id="submit-final-zone" style="width: 100%;">
+              <div class="lead-instruction" style="text-align: center; padding: 15px; border: 1px solid var(--border2); border-radius: 8px; background: rgba(0,229,255,0.05); margin-bottom: 10px;">
+                <p style="font-size: 0.8rem; color: var(--cyan); margin: 0;">🚀 <strong>Ready to finish?</strong></p>
+                <p style="font-size: 0.7rem; color: var(--text2); margin-top: 5px;">Team Lead: Login on your phone with the Team Name to upload answer photos and finish the contest.</p>
+              </div>
+              <button class="btn btn-submit" id="btn-submit-final" style="width: 100%; display: none;">
+                <span class="btn-icon">✔</span>
+                <span class="btn-text">Finish & Submit Contest</span>
+              </button>
+              <div class="submit-status hidden" id="status-final">✅ Contest Submitted Successfully</div>
+            </div>
           </div>
         </div>
 
@@ -252,13 +255,42 @@
   </div>
 
   <!-- ═══════════════════════════════════════════════ -->
-  <!--  TIME'S UP OVERLAY                              -->
+  <!--  LEAD SUBMISSION SCREEN (MOBILE)                -->
   <!-- ═══════════════════════════════════════════════ -->
-  <div id="timesup-overlay" class="timesup-overlay hidden">
-    <div class="timesup-inner">
-      <div class="timesup-title">TIME'S UP</div>
-      <div class="timesup-sub">Please stop writing and submit your answer sheets.</div>
-      <div class="timesup-brand">BUILD THE ELECTRO BRICKS &middot; CONTEST ENDED</div>
+  <div id="screen-lead-submission" class="screen">
+    <div class="lead-wrap fade-up" style="max-width: 500px; margin: 40px auto; padding: 20px;">
+      <div class="lead-header" style="text-align: center; margin-bottom: 30px;">
+        <h2 style="font-family: 'Orbitron', sans-serif; color: var(--cyan);">Team Lead Panel</h2>
+        <p id="lead-team-info" style="font-family: 'Space Mono', monospace; font-size: 0.8rem; color: var(--text2);">Team Name &middot; Token #</p>
+      </div>
+
+      <div class="card">
+        <div class="q-group" style="margin-bottom: 20px;">
+          <label style="display: block; font-size: 0.7rem; color: var(--text2); text-transform: uppercase; margin-bottom: 10px;">Question 1: Digital</label>
+          <button class="btn btn-capture-trigger" id="btn-capture-digital" style="background: rgba(0, 229, 255, 0.1); border: 1px solid var(--cyan);">
+            <span class="btn-icon">📷</span>
+            <span class="btn-text" id="text-digital-status">Capture Digital Answer</span>
+          </button>
+        </div>
+
+        <div class="q-group" style="margin-bottom: 30px;">
+          <label style="display: block; font-size: 0.7rem; color: var(--text2); text-transform: uppercase; margin-bottom: 10px;">Question 2: Analog</label>
+          <button class="btn btn-capture-trigger" id="btn-capture-analog" style="background: rgba(255, 179, 0, 0.1); border: 1px solid var(--amber);">
+            <span class="btn-icon">📷</span>
+            <span class="btn-text" id="text-analog-status">Capture Analog Answer</span>
+          </button>
+        </div>
+
+        <button class="btn btn-submit" id="btn-lead-finish" style="width: 100%;" disabled>
+          <span class="btn-icon">🏁</span>
+          <span class="btn-text">Finalize & Finish Contest</span>
+        </button>
+        <p id="lead-finish-note" style="font-size: 0.6rem; color: var(--text2); text-align: center; margin-top: 15px;">Capture at least one answer to enable the finish button.</p>
+      </div>
+      
+      <button class="btn btn-leave" id="btn-lead-logout" style="margin-top: 30px; background: rgba(255,68,68,0.1); border: 1px solid var(--red);">
+        <span class="btn-text">Logout Panel</span>
+      </button>
     </div>
   </div>
 
@@ -286,6 +318,7 @@
       </div>
     </div>
   </div>
+
 
   <!-- ═══════════════════════════════════════════════ -->
   <!--  TAB WARNING OVERLAY                            -->

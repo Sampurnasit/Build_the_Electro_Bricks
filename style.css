@@ -1270,32 +1270,56 @@ body {
 .token-btn {
   aspect-ratio: 1;
   background: var(--bg2);
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
   border-radius: 12px;
   font-family: 'Orbitron', monospace;
   font-size: 1.5rem;
   font-weight: 800;
   color: var(--text);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.token-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 
 .token-btn:hover:not(:disabled) {
-  border-color: var(--cyan);
-  background: rgba(0, 229, 255, 0.1);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 229, 255, 0.2);
-  color: var(--cyan);
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 10px 30px currentColor;
+  z-index: 2;
 }
 
+.token-btn:hover:not(:disabled)::before {
+  opacity: 0.1;
+}
+
+.token-btn[data-token="1"] { color: #ff4444; border-color: rgba(255, 68, 68, 0.4); }
+.token-btn[data-token="2"] { color: #ff8800; border-color: rgba(255, 136, 0, 0.4); }
+.token-btn[data-token="3"] { color: #ffbb00; border-color: rgba(255, 187, 0, 0.4); }
+.token-btn[data-token="4"] { color: #39ff14; border-color: rgba(57, 255, 20, 0.4); }
+.token-btn[data-token="5"] { color: #00ffcc; border-color: rgba(0, 255, 204, 0.4); }
+.token-btn[data-token="6"] { color: #00e5ff; border-color: rgba(0, 229, 255, 0.4); }
+.token-btn[data-token="7"] { color: #0088ff; border-color: rgba(0, 136, 255, 0.4); }
+.token-btn[data-token="8"] { color: #a855f7; border-color: rgba(168, 85, 247, 0.4); }
+.token-btn[data-token="9"] { color: #ff00ff; border-color: rgba(255, 0, 255, 0.4); }
+.token-btn[data-token="10"] { color: #ffffff; border-color: rgba(255, 255, 255, 0.4); }
+
 .token-btn:disabled {
-  opacity: 0.2;
+  opacity: 0.1;
   cursor: not-allowed;
-  background: rgba(255, 255, 255, 0.02);
-  border-color: transparent;
+  filter: grayscale(1);
+  transform: scale(0.95);
 }
 
 .token-btn.loading {
