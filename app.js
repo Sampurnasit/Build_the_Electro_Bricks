@@ -21,7 +21,7 @@ const usedCodes = new Set();
    TIMER CONFIG
    ════════════════════════════════════════════════════════════ */
 
-const TIMER_DURATION_SECONDS = 30 * 60; // 30 minutes
+const TIMER_DURATION_SECONDS = 50 * 60; // 50 minutes
 
 /* ════════════════════════════════════════════════════════════
    UTILITIES
@@ -239,93 +239,88 @@ document.getElementById("btn-enter-contest")?.addEventListener("click", () => {
 
 async function initTokenSelection() {
   const grid = document.getElementById("tokens-grid");
-  const isRefresh = grid.children.length === 10 && !grid.querySelector(".loading");
+  
+  // Show a small sync indicator if we're refreshing
+  const existingButtons = grid.querySelectorAll(".token-btn");
+  const isInitial = existingButtons.length === 0;
 
-  if (!isRefresh) {
-    grid.innerHTML = "";
-    // Show loading state on buttons
-    for (let i = 1; i <= 10; i++) {
-      const btn = document.createElement("button");
-      btn.className = "token-btn loading";
-      btn.textContent = i;
-      btn.setAttribute("data-token", i);
-      btn.disabled = true;
-      grid.appendChild(btn);
-    }
-  }
-
-  // Fetch taken tokens from Supabase (Only active ones)
+  // Fetch taken tokens from Supabase
   let takenTokens = [];
   if (window.supabaseClient) {
     try {
+      // Only count tokens as "taken" if they are active, not completed, and not disqualified
       const { data, error } = await window.supabaseClient
         .from('team_assignments')
         .select('token_id, warnings, digital_submission')
-        .is('digital_submitted_at', null);
+        .is('digital_submitted_at', null)
+        .gte('created_at', new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString());
         
       if (!error && data) {
         takenTokens = data
-          .filter(r => r.token_id !== null && r.warnings !== -1 && r.digital_submission !== 'LEFT')
+          .filter(r => {
+            const isDisqualified = (r.warnings >= 3);
+            const isInactive = (r.warnings === -1);
+            const hasLeft = (r.digital_submission === 'LEFT');
+            return r.token_id !== null && !isDisqualified && !isInactive && !hasLeft;
+          })
           .map(r => r.token_id);
+
+        // USER LOGIC: If all 10 unique tokens are taken, unlock them all to allow a new round/batch
+        const uniqueTaken = new Set(takenTokens);
+        if (uniqueTaken.size >= 10) {
+          takenTokens = []; 
+        }
       }
     } catch (err) {
-      console.error("Failed to fetch tokens:", err);
+      console.error("Token fetch error:", err);
     }
   }
 
-  // Render final buttons or update them
-  if (isRefresh) {
-    const buttons = grid.querySelectorAll(".token-btn");
-    buttons.forEach((btn, idx) => {
-      const i = idx + 1;
-      const isTaken = takenTokens.includes(i);
-      btn.disabled = isTaken;
-    });
-  } else {
-    grid.innerHTML = "";
-    for (let i = 1; i <= 10; i++) {
-      const btn = document.createElement("button");
-      btn.className = "token-btn";
-      btn.textContent = i;
-      btn.setAttribute("data-token", i);
-      
-      if (takenTokens.includes(i)) {
-        btn.disabled = true;
-      } else {
-        btn.addEventListener("click", async () => {
-          // Disable all buttons to prevent double click
-          document.querySelectorAll(".token-btn").forEach(b => b.disabled = true);
-          btn.classList.add("loading");
+  // Re-render the grid every time to ensure state consistency
+  grid.innerHTML = "";
+  for (let i = 1; i <= 10; i++) {
+    const btn = document.createElement("button");
+    btn.className = "token-btn";
+    btn.textContent = i;
+    btn.setAttribute("data-token", i);
+    
+    const isTaken = takenTokens.includes(i);
+    btn.disabled = isTaken;
 
-          // DOUBLE CHECK: Is it still available? (Prevent race condition)
-          if (window.supabaseClient) {
-            const { data: freshData } = await window.supabaseClient
-              .from('team_assignments')
-              .select('token_id, warnings, digital_submission')
-              .is('digital_submitted_at', null);
-              
-            const activeTokens = freshData
-              ?.filter(r => r.token_id !== null && r.warnings !== -1 && r.digital_submission !== 'LEFT')
-              .map(r => r.token_id) || [];
-              
-            const isTaken = activeTokens.includes(i);
-            
-            if (isTaken) {
-              alert("⚠️ This token was just taken by another team! Please choose another.");
-              initTokenSelection(); // Refresh the grid
-              return;
-            }
-          }
+    if (!isTaken) {
+      btn.addEventListener("click", async () => {
+        // Disable all to prevent double-clash
+        document.querySelectorAll(".token-btn").forEach(b => b.disabled = true);
+        btn.classList.add("loading");
+
+        // Double check availability immediately before assigning
+        if (window.supabaseClient) {
+          const { data: fresh } = await window.supabaseClient
+            .from('team_assignments')
+            .select('token_id, warnings, digital_submission')
+            .is('digital_submitted_at', null)
+            .gte('created_at', new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString());
           
-          initDashboard(globalUserName, globalUserCode, i);
-          showScreen("screen-dashboard");
-        });
-      }
-      grid.appendChild(btn);
+          const currentlyTaken = fresh?.filter(r => {
+            return r.token_id !== null && r.warnings < 3 && r.warnings !== -1 && r.digital_submission !== 'LEFT';
+          }).map(r => r.token_id) || [];
+          
+          const uniqueTaken = new Set(currentlyTaken);
+          if (uniqueTaken.size < 10 && currentlyTaken.includes(i)) {
+            alert("⚠️ This token was just taken! Please choose another.");
+            initTokenSelection();
+            return;
+          }
+        }
+        
+        initDashboard(globalUserName, globalUserCode, i);
+        showScreen("screen-dashboard");
+      });
     }
+    grid.appendChild(btn);
   }
 
-  // Auto-refresh token grid every 5 seconds while on this screen
+  // Ensure auto-refresh interval is active
   if (!window.tokenRefreshInterval) {
     window.tokenRefreshInterval = setInterval(() => {
       const activeScreen = document.querySelector(".screen.active")?.id;
