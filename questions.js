@@ -16,7 +16,7 @@ As the chief engineer of the mission, your task is to design a robust Single-Pha
 
 The Problem
 Your task is to design a single-phase full-wave bridge rectifier to convert the AC output of the mini-generator into functional DC.`,
-    images: ["Q1.png"]
+    images: []
   },
   {
     id: "A2",
