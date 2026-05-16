@@ -96,7 +96,7 @@ Captain America checks the resistor and asks:
 •	Determine the resistor value using the given color code bands. 
 •	What happens if the wrong resistor value is connected in the circuit?
 `,
-    images: ["Q6.gif"]
+    images: ["resistor.jpeg"]
   },
   {
     id: "A7",
